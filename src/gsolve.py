@@ -10,7 +10,8 @@ def gsolve(Z, B, l):
     """
     This function will plot the curve of the solved G function and the measured pixels.
     
-    Don't worry. We have implemented this function from you
+    Don't worry. We have implemented this function for you. It should work right out of the box
+    it the correct arguments are passed into
     
     Input:
     Z - Measured Brightness
