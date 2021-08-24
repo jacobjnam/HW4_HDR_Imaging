@@ -65,8 +65,33 @@ def plotCurves(solveG, LE, logexpTime, zValues,mylambda):
              Please note that in this function, we only take z value in ONLY ONE CHANNEL.
     title: A string. Title of the plot.
     """
-    raise NotImplementedError
-
+    plt.suptitle('Lambda 1000')
+    
+    plt.subplot(131)
+    plt.plot(solveG[:, 0], range(256), color='red')
+    exposure = np.array([LE[:, 0]+i for i in logexpTime])
+    plt.scatter(exposure, zValues[:, :, 0].T, s=1)
+    plt.title('Red channel')
+    plt.ylabel('Brightness values')
+    plt.xlabel('Log exposure time')
+    
+    plt.subplot(132)
+    plt.plot(solveG[:, 1], range(256), color='red')
+    exposure = np.array([LE[:, 1]+i for i in logexpTime])
+    plt.scatter(exposure, zValues[:, :, 1].T, s=1)
+    plt.title('Green channel')
+    plt.ylabel('Brightness values')
+    plt.xlabel('Log exposure time')
+    
+    plt.subplot(133)
+    plt.plot(solveG[:, 2], range(256), color='red')
+    exposure = np.array([LE[:, 2]+i for i in logexpTime])
+    plt.scatter(exposure, zValues[:, :, 2].T, s=1)
+    plt.title('Blue channel')
+    plt.ylabel('Brightness values')
+    plt.xlabel('Log exposure time')
+    
+    plt.tight_layout()
 
 
 
@@ -91,6 +116,12 @@ def plotCurve(solveG, LE, logexpTime, zValues, title):
     
     title: A string. Title of the plot.
     """
-    raise NotImplementedError
+
+    plt.plot(solveG, range(256), color='red')
+    exposure = np.array([LE+i for i in logexpTime])
+    plt.scatter(exposure, zValues.T, s=1)
+    plt.title(title)
+    plt.ylabel('Brightness values')
+    plt.xlabel('Log exposure time')
 
     

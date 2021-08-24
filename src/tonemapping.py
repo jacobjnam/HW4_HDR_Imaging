@@ -40,7 +40,14 @@ def scaleBrightness(E):
     Returns:
         ENomrMap: An m*n*3 array. Normalized radiance map, whose value should between 0 and 1
     """
-    raise NotImplementedError
+    X=E
+    m=np.max(X)
+    for i in range(3):
+        a=E[:,:,i]
+        a=(a-np.min(a))/(np.max(a) - np.min(a))
+        X[:,:,i]=a
+
+    return X
 
 def apply_gamma_curve(E, gamma= 0.4):
     """
@@ -52,7 +59,8 @@ def apply_gamma_curve(E, gamma= 0.4):
     Returns:
         E_gamma: E modified by raising it to gamma.
     """
-    raise NotImplementedError
+    res = E
+    return np.power(res, gamma)
     
     
 def convert_rgb2gray(rgb):
@@ -77,7 +85,12 @@ def convert_rgb2gray(rgb):
         output (np.ndarray): Gray scale image of RGB weighted by weighting function from above
     """
     
-    raise NotImplementedError
+    gray = rgb
+    
+    r, g, b = gray[:, :, 0], gray[:, :, 1], gray[:, :, 2]
+    gray = 0.2989*r + 0.5870*g + 0.1140*b
+    
+    return gray
 
 def tone_mapping(radiance, a= 0.1):
     """
@@ -90,7 +103,22 @@ def tone_mapping(radiance, a= 0.1):
     Returns:
         MMat: An m*n array. Calculated M matrix, which is used to generate final HDR image.
     """
-    raise NotImplementedError
+    gray = convert_rgb2gray(radiance)
+    #L = gray.ravel()
+    delta = 1e-4
+    L_avg = np.exp(delta + np.mean(np.log(delta + gray)))
+    
+    T = (a/L_avg)*gray
+    T_maxsq = T.max() ** 2
+    
+    L_tone = (T*(1 + T/T_maxsq))/(1 + T)
+    
+    L_max = L_tone.max()
+    
+    MMat = np.divide(L_tone, gray, where=gray!=0)
+    return MMat
+
+    
 
 def compute_hdr_image(rawImg, expTime, lam = 100, gamma = 0.35, a = 0.2):
     """
@@ -108,5 +136,22 @@ def compute_hdr_image(rawImg, expTime, lam = 100, gamma = 0.35, a = 0.2):
         hdr: the hdr image
         radiance_gamma: the E_gamma, gamma curve applied to image through apply_gamma_curve
     """
+    numSample = 500
+    Zvalues = loaddata.create_measured_Z_values(rawImg, numSample)
+    
+    log_exposure_time = np.log(expTime)
 
-    raise NotImplementedError
+    solveG = np.zeros((256,3))
+    log_exposure = np.zeros((numSample,3))
+    for k in range(3):
+        solveG[:,k], log_exposure[:,k] = gsolve(Zvalues[:,:,k], log_exposure_time, lam)
+    
+    recRadMap = recradmap.get_log_radiance_map(rawImg, log_exposure_time, solveG)
+    radiance = np.exp(recRadMap)
+    
+    E = scaleBrightness(radiance)
+    
+    E_gamma = apply_gamma_curve(E, gamma)
+    
+    res = tone_mapping(E_gamma, a)
+    return res, E_gamma

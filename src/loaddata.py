@@ -7,7 +7,7 @@ import re
 from os.path import join
 from glob import glob
 
-savedir = 'output'
+savedir = 'output/'
 
 def save_fig_as_png(figtitle):
     '''
@@ -24,7 +24,9 @@ def save_fig_as_png(figtitle):
     https://stackoverflow.com/questions/8218608/scipy-savefig-without-frames-axes-only-content
     
     '''
-    raise NotImplementedError
+    path = savedir + figtitle + '.png'
+    plt.gcf()
+    plt.savefig(path)
 
 def loadImage(imgFolder):
     """
@@ -40,8 +42,25 @@ def loadImage(imgFolder):
     Hint: There is an openCV function to convert from BGR to RGB (google it for more information)
     
     """
+    lst = []
+    exp = []
+    for img_name in glob(imgFolder + "//*.png"):
+        exposure = float(img_name[len(imgFolder)-1:-4])
+        exp.append(exposure)
+        img = cv2.imread(img_name)
+        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        np_frame = np.array(rgb_img, dtype='float32')
+        lst.append(np_frame)
     
-    raise NotImplementedError
+    rawImg = np.asarray(lst, dtype='uint8')
+    rawImg = np.moveaxis(rawImg, 0, -1)
+    expTime = np.asarray(exp)
+    
+    exp_sort_order = np.argsort(expTime)
+    expTime = expTime[exp_sort_order]
+    rawImg = rawImg[..., exp_sort_order]
+    
+    return rawImg, expTime
     
 
 def loadExposureTime(imgFolder):
@@ -76,5 +95,25 @@ def create_measured_Z_values(rawImg, numSample= 1000, low = 0, high = 245):
         zValues: numSample*k*3 array. numSample is the number of sampled pixels, k is the number of images, and 3 represents RGB channels. It's the matrix of pixel values, 
     """
     
-    raise NotImplementedError
-
+    #indices = np.all(rawImg, axis=(1,2))
+    #random_pixel = np.random.randint(low=0, high=(rawImg[0]-1), size=numSample)
+    #randomX = np.random.randint(len(rawImg[0]), size=numSample)
+    #randomY = np.random.randint(len(rawImg[1]), size=numSample)
+    #print(rawImg.shape)
+    num_elements = rawImg.shape[0]*rawImg.shape[1]
+    #print(len(rawImg[0]), len(rawImg[1]), num_elements)
+    flat = rawImg.reshape(num_elements, rawImg.shape[2], rawImg.shape[3])
+    #print(flat.shape)
+    #low = np.full(flat.shape, low)
+    #high = np.full(flat.shape, high)
+    #print(low.shape)
+    #print(high.shape)
+    
+    #bounds = np.all((rawImg) >= low & (rawImg <= high), axis=(1,2))
+    #print(bounds.shape)
+    randomIndex = np.random.randint(0, high=num_elements-1, size=numSample)
+        
+    
+    zValues = flat[randomIndex,:,:]
+    zValues = np.swapaxes(zValues, 1, 2)
+    return zValues
