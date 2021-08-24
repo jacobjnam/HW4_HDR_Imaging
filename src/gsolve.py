@@ -51,20 +51,6 @@ def gsolve(Z, B, l):
     return g.squeeze(),lE.squeeze()
 
 def plotCurves(solveG, LE, logexpTime, zValues,mylambda):
-    """
-    This function will plot the curve of the solved G function and the measured pixels. You don't need to return anything in this function.
-    
-    You might want to implement the function "plotCurve" first for one specific color channel
-    before you go on an plot this for all 3 channels
-    
-    Input
-    solveG: A (256,1) array. Solved G function generated in the previous section.
-    LE: Log Erradiance of the image.
-    logexpTime: (k,) array, k is the number of input images. Log exposure time.
-    zValues: m*n array. m is the number of sampling points, and n is the number of input images. Z value generated in the previous section. 
-             Please note that in this function, we only take z value in ONLY ONE CHANNEL.
-    title: A string. Title of the plot.
-    """
     plt.suptitle('Lambda 1000')
     
     plt.subplot(131)

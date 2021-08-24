@@ -79,41 +79,9 @@ def loadExposureTime(imgFolder):
         
 
 def create_measured_Z_values(rawImg, numSample= 1000, low = 0, high = 245):
-    """
-    This function will sample a subset of the Z values from the captured images dataset. 
-    Output of this function will be the input of the gsolve function to calculate the camera response curve.
-    Note: In order to accelerate the speed of the program, DO NOT USE ALL PIXELS IN THE IMAGE!
-    In this function, you need to sample some of the pixels within the input images randomly. You can sample several hunderd or several thousand pixels.
-
-    Input
-        rawImg: m*n*3*k array. m, n is the size of each image, and k is the number of input images.
-        numSample: number of sampled pixels. Default is 1000, you can use your own values.
-        low: the lowest intensity value to trust before considering the pixel underexposed 
-        high: the highest intensity value to trust before considering the pixel overexposed
-
-    Output
-        zValues: numSample*k*3 array. numSample is the number of sampled pixels, k is the number of images, and 3 represents RGB channels. It's the matrix of pixel values, 
-    """
-    
-    #indices = np.all(rawImg, axis=(1,2))
-    #random_pixel = np.random.randint(low=0, high=(rawImg[0]-1), size=numSample)
-    #randomX = np.random.randint(len(rawImg[0]), size=numSample)
-    #randomY = np.random.randint(len(rawImg[1]), size=numSample)
-    #print(rawImg.shape)
     num_elements = rawImg.shape[0]*rawImg.shape[1]
-    #print(len(rawImg[0]), len(rawImg[1]), num_elements)
     flat = rawImg.reshape(num_elements, rawImg.shape[2], rawImg.shape[3])
-    #print(flat.shape)
-    #low = np.full(flat.shape, low)
-    #high = np.full(flat.shape, high)
-    #print(low.shape)
-    #print(high.shape)
-    
-    #bounds = np.all((rawImg) >= low & (rawImg <= high), axis=(1,2))
-    #print(bounds.shape)
-    randomIndex = np.random.randint(0, high=num_elements-1, size=numSample)
-        
-    
+    randomIndex = np.random.randint(0, high=num_elements-1, size=numSample)   
     zValues = flat[randomIndex,:,:]
     zValues = np.swapaxes(zValues, 1, 2)
     return zValues
